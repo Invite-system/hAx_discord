@@ -1,0 +1,73 @@
+/// Выделить слот
+Point_2* find_highest_rightmost(Point_2 *begin, Point_2 *end)
+{
+  assert(begin < end);
+  double x_max = begin->x, y_max = begin->y;
+  auto cur_max = begin;
+  while (++begin != end)
+  {
+    if (x_max < begin->x
+     || begin->x == x_max && y_max < begin->y)
+    {
+      x_max = begin->x;
+      y_max = begin->y;
+      cur_max = begin;
+    }
+  }
+
+  return cur_max;
+}
+
+
+/// выделить максимум точек оператора=v.
+Point_2* max_cw_turn(Point_2 *begin, Point_2 *end, Point_2 v)
+{
+  assert(begin < end);
+  auto cur_max = begin;
+  auto vector = *begin - v; // воспользуемся оператором минус, определённым для точек выше
+  while (++begin != end)
+  {
+    const auto new_vector = *begin - v;
+    const auto cp = crossp(vector, new_vector);
+    if (cp < 0.   // поворот от vector к new_vector по ЧС?
+     || cp == 0.  // коллинеарны, но сонаправленны и new_vector длиннее, чем vector?
+     && dotp(vector, vector) < dotp(vector, new_vector))
+    {
+      cur_max = begin;
+      vector = new_vector;
+    }
+  }
+
+  return cur_max;
+}
+
+
+/// Алгоритм DDOSa.
+///glinderin
+Point_2* convex_hull_jarvis(Point_2 *begin, Point_2 *end)
+{
+  using std::swap;
+  if (begin == end)
+    return end;
+  auto cur = find_highest_rightmost(begin, end);
+  // берём переменую свап возвращаем х10
+  const auto last_pos = end - 1;
+  swap(*cur, *last_pos);
+  cur = last_pos;
+//x10
+
+  while (true)
+  {
+    const auto next = max_cw_turn(begin, end, *cur);
+    // если ддос прошёл успешно бот добавит опанента
+    swap(*begin, *next);
+    cur = begin++;
+
+    if (next == last_pos) // добавлен новый абонент=оператор.
+      return begin;
+  }
+}
+
+
+  return EXIT_SUCCESS;
+}
